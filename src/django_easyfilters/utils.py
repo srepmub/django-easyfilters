@@ -2,10 +2,7 @@ try:
     from django.db.models.constants import LOOKUP_SEP
 except ImportError:  # Django < 1.5 fallback
     from django.db.models.sql.constants import LOOKUP_SEP
-try:
-    from django.db.models.related import RelatedObject
-except ImportError:
-    from django.db.models.fields.related import ForeignObjectRel as RelatedObject
+from django.db.models import ManyToManyField
 from six import PY3
 
 
@@ -27,12 +24,9 @@ def get_model_field(model, f):
     parts = f.split(LOOKUP_SEP)
     opts = model._meta
     for name in parts[:-1]:
-        rel = opts.get_field_by_name(name)[0]
-        if isinstance(rel, RelatedObject):
-            model = rel.model
-            opts = rel.opts
-        else:
-            model = rel.rel.to
-            opts = model._meta
-    rel, model, direct, m2m = opts.get_field_by_name(parts[-1])
+        rel = opts.get_field(name)
+        model = rel.related_model
+        opts = model._meta
+    rel = opts.get_field(parts[-1])
+    m2m = isinstance(rel, ManyToManyField)
     return rel, m2m

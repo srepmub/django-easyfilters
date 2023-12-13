@@ -13,7 +13,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.dates import MONTHS
 
-from .queries import date_aggregation
 from .queries import numeric_range_counts
 from .queries import value_counts
 from .ranges import auto_ranges
@@ -73,9 +72,11 @@ class Filter(object):
         self.order_by_count = order_by_count
         self.field_obj, m2m = get_model_field(self.model, self.field)
 
-        if self.field_obj.rel is not None:
-            self.rel_model = self.field_obj.rel.to
-            self.rel_field = self.field_obj.rel.get_related_field()
+        remote_field = self.field_obj.remote_field
+        if remote_field is not None:
+            self.rel_model = self.field_obj.related_model
+            self.rel_field = self.rel_model._meta.get_field(remote_field.field_name)
+
         # Make chosen an immutable sequence, to stop accidental mutation.
         self.chosen = tuple(self.choices_from_params())
         self.sticky = sticky
@@ -401,7 +402,7 @@ class ForeignKeyFilter(ChooseOnceMixin,
 
     def get_choices_add(self, qs):
         count_dict = self.get_values_counts(qs)
-        lookup = {self.rel_field.name + '__in': count_dict.keys()}
+        lookup = {self.rel_field.name + '__in': list(count_dict)}
         objs = self.rel_model.objects.filter(**lookup)
         choices = []
 
@@ -434,9 +435,9 @@ class ManyToManyFilter(ChooseAgainMixin, RelatedObjectMixin, Filter):
 
         assert rel_model != self.model, "Can't cope with this yet..."
         fkey_this = [f for f in through._meta.fields
-                     if f.rel is not None and f.rel.to is self.model][0]
+                     if f.rel is not None and f.related_model is self.model][0]
         fkey_other = [f for f in through._meta.fields
-                      if f.rel is not None and f.rel.to is rel_model][0]
+                      if f.rel is not None and f.related_model is rel_model][0]
 
         # We need to limit items by what is in the main QuerySet (which might
         # already be filtered).
@@ -759,13 +760,19 @@ class DateTimeFilter(RangeFilterMixin, Filter):
                 else:
                     range_type = YEAR
 
-            if (VERSION >= (1, 6) and isinstance(self.field_obj,
-                                                 models.fields.DateTimeField)):
-                date_qs = qs.datetimes(self.field, range_type.label)
+            if range_type is DAY:
+                trunc_func = models.functions.TruncDay
+            elif range_type is MONTH:
+                trunc_func = models.functions.TruncMonth
             else:
-                date_qs = qs.dates(self.field, range_type.label)
+                trunc_func = models.functions.TruncYear
 
-            results = date_aggregation(date_qs)
+            date_qs = qs.annotate(trunc_date=trunc_func(self.field)).\
+                         values('trunc_date').\
+                         annotate(count=models.Count('trunc_date')).\
+                         order_by('trunc_date')
+
+            results = [[row['trunc_date'], row['count']] for row in date_qs]
 
             date_choice_counts = self.collapse_results(results, range_type)
             if len(date_choice_counts) == 1 and range_type is not None:

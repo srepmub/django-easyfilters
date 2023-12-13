@@ -6,7 +6,7 @@ from django.template.loader import get_template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from .filters import ChoicesFilter
 from .filters import DateTimeFilter
@@ -88,7 +88,7 @@ class FilterSet(object):
                                link_type=c.link_type,
                                count=c.count)
                           for c in choices]
-        return self.get_template(filter_.field).render(template.Context(ctx))
+        return self.get_template(filter_.field).render(ctx)
 
     def get_template(self, field_name):
         if self.template:
@@ -105,7 +105,7 @@ class FilterSet(object):
 
     def get_filter_for_field(self, field):
         f, m2m = get_model_field(self.model, field)
-        if f.rel is not None:
+        if f.remote_field is not None:
             if m2m:
                 return ManyToManyFilter
             else:
