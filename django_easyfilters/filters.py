@@ -776,7 +776,7 @@ class DateTimeFilter(RangeFilterMixin, Filter):
                          annotate(count=models.Count('trunc_date')).\
                          order_by('trunc_date')
 
-            results = [[row['trunc_date'], row['count']] for row in date_qs]
+            results = [[row['trunc_date'], row['count']] for row in date_qs if row['trunc_date'] is not None]
 
             date_choice_counts = self.collapse_results(results, range_type)
             if len(date_choice_counts) == 1 and range_type is not None:
