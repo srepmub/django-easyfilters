@@ -88,7 +88,10 @@ class FilterSet(object):
                                link_type=c.link_type,
                                count=c.count)
                           for c in choices]
-        return self.get_template(filter_.field).render(ctx)
+        if self.template:
+            return self.get_template(filter_.field).render(template.Context(ctx))
+        else:
+            return self.get_template(filter_.field).render(ctx)
 
     def get_template(self, field_name):
         if self.template:
