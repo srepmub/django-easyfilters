@@ -35,11 +35,12 @@ def numeric_range_counts(qs, fieldname, ranges):
     count_dict = OrderedDict()
     for row in qs:
         val = row['added_updated']
-        count = row['count']
-        try:
-            r = ranges[val]
-        except IndexError:
-            # Include in the top range - this could be a rounding error
-            r = ranges[-1]
-        count_dict[r] = count
+        if val is not None:
+            count = row['count']
+            try:
+                r = ranges[val]
+            except IndexError:
+                # Include in the top range - this could be a rounding error
+                r = ranges[-1]
+            count_dict[r] = count
     return count_dict
