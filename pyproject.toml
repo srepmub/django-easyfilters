@@ -27,7 +27,6 @@ classifiers = [
 ]
 
 packages = [
-    { include = "django-easyfilters" },
 ]
 
 include = [
