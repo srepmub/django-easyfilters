@@ -44,7 +44,7 @@ class Book(models.Model):
                                blank=True)
     other = models.CharField(max_length=10, blank=True)
     authors = models.ManyToManyField(Author, blank=True)
-    genre = models.ForeignKey(Genre, null=True, blank=True)
+    genre = models.ForeignKey(Genre, null=True, blank=True, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     date_published = models.DateField(null=True, blank=True)
     edition = models.IntegerField(default=1, null=True, blank=True)
