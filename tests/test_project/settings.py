@@ -14,9 +14,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_easyfilters',
     'test_app',
-    #'debug_toolbar',
-    #'django_extensions',
+    #'debug_toolbar', # added dynamically, see below
+    #'django_extensions', # added dynamically, see below
 ]
+
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -40,14 +41,19 @@ try:
 except ImportError:
     pass
 
-TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request",
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        },
+    },
 ]
 
 ROOT_URLCONF = 'test_app.urls'
@@ -59,5 +65,3 @@ SITE_ID = 1
 STATIC_URL = '/static/'
 
 SECRET_KEY = 'x'
-
-#TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
