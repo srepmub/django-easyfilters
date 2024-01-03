@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "django-easyfilters"
 version = "0.8.0"
-description = "Easy creation of link-based filtering for a list of Django model objects.",
+description = "Easy creation of link-based filtering for a list of Django model objects."
 
 license = "MIT License"
 readme = "README.rst"
