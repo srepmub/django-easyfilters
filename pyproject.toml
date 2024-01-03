@@ -36,6 +36,7 @@ include = [
     { path = "AUTHORS", format = ["sdist"] },
     { path = "CHANGES.rst", format = ["sdist"] },
     { path = "LICENSE", format = ["sdist"] },
+    { path = "TODO", format = ["sdist"] },
     { path = "pyproject.toml", format = ["sdist"] },
     { path = "docs/*.rst", format = ["sdist"] },
     { path = "setup.py", format = ["sdist"] },
@@ -44,12 +45,9 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-conan = "1.62.0"
-
-
-
-
+python = ">= 3.8"
+django = ">= 3.2.23"
+six = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"

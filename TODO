@@ -1,0 +1,2 @@
+-remove imports of six module
+-run tests as github action
