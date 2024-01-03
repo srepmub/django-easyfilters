@@ -31,7 +31,7 @@ Install
 
 ::
 
-    pip install django-easyfilters-ex
+    pip install django-easyfilters
 
 Docs
 ====

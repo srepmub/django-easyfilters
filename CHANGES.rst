@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.8.0
+-------------
+
+* Support Python 3 and Django 3 to 5.
+
 Version 0.7.0
 -------------
 
