@@ -47,6 +47,7 @@ include = [
 [tool.poetry.dependencies]
 python = ">= 3.8"
 django = ">= 3.2.23"
+python-dateutil = "*"
 six = "*"
 
 [tool.poetry.group.dev.dependencies]
