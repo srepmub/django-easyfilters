@@ -75,7 +75,10 @@ class Filter(object):
         remote_field = self.field_obj.remote_field
         if remote_field is not None:
             self.rel_model = self.field_obj.related_model
-            self.rel_field = self.rel_model._meta.get_field(remote_field.field_name)
+            if m2m:
+                self.rel_field = self.rel_model._meta.get_field(remote_field.target_field.name)
+            else:
+                self.rel_field = self.rel_model._meta.get_field(remote_field.field_name)
 
         # Make chosen an immutable sequence, to stop accidental mutation.
         self.chosen = tuple(self.choices_from_params())
@@ -430,14 +433,15 @@ class ManyToManyFilter(ChooseAgainMixin, RelatedObjectMixin, Filter):
     def get_values_counts(self, qs):
         # It is easiest to base queries around the intermediate table, in order
         # to get counts.
-        through = self.field_obj.rel.through
+
+        through = self.field_obj.remote_field.through
         rel_model = self.rel_model
 
         assert rel_model != self.model, "Can't cope with this yet..."
         fkey_this = [f for f in through._meta.fields
-                     if f.rel is not None and f.related_model is self.model][0]
+                     if f.remote_field is not None and f.related_model is self.model][0]
         fkey_other = [f for f in through._meta.fields
-                      if f.rel is not None and f.related_model is rel_model][0]
+                      if f.remote_field is not None and f.related_model is rel_model][0]
 
         # We need to limit items by what is in the main QuerySet (which might
         # already be filtered).
